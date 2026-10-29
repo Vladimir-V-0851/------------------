@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Дневник тренировок: упражнения, объём нагрузки и прогресс">
+    <title>Дневник тренировок</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script type="module" src="/static/js/app.js"></script>
+</head>
+<body class="app-page">
+    <header class="topbar">
+        <div class="topbar__inner">
+            <a class="brand" href="/" aria-label="Дневник тренировок, главная">
+                <span class="brand__mark">ДТ</span>
+                <span>Дневник тренировок</span>
+            </a>
+            <div class="userbox">
+                <span class="userbox__label">Пользователь</span>
+                <strong id="current-username">...</strong>
+                <button id="logout-button" class="btn btn--ghost btn--small" type="button">Выйти</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <section class="hero">
+            <div>
+                <p class="eyebrow">Личный дневник</p>
+                <h1>Тренируйтесь осознанно</h1>
+                <p class="hero__text">Фиксируйте упражнения, вес и повторения. Дневник посчитает объём нагрузки и покажет историю прогресса.</p>
+            </div>
+            <div class="hero__mark" aria-hidden="true">
+                <span id="hero-total">0</span>
+                <small>тренировок</small>
+            </div>
+        </section>
+
+        <section class="stats-section" aria-labelledby="stats-heading">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Сводка</p>
+                    <h2 id="stats-heading">Ваша статистика</h2>
+                </div>
+            </div>
+            <div id="stats-grid" class="stats-grid" aria-live="polite"></div>
+            <div id="stats-categories" class="category-panel" hidden></div>
+        </section>
+
+        <div class="workspace">
+            <aside class="panel form-panel" aria-labelledby="new-workout-heading">
+                <div class="panel-heading">
+                    <p class="eyebrow">Запись</p>
+                    <h2 id="new-workout-heading">Новая тренировка</h2>
+                    <p class="muted">Добавьте основную информацию. Упражнения можно внести после сохранения.</p>
+                </div>
+                <form id="workout-form" class="form-stack" novalidate>
+                    <label class="field">
+                        <span>Название</span>
+                        <input id="workout-title" name="title" type="text" maxlength="150" placeholder="Например, силовая тренировка" required>
+                    </label>
+                    <div class="field-row">
+                        <label class="field">
+                            <span>Дата</span>
+                            <input id="workout-date" name="workout_date" type="date" required>
+                        </label>
+                        <label class="field">
+                            <span>Длительность, мин</span>
+                            <input id="workout-duration" name="duration_minutes" type="number" min="1" max="1440" value="60" required>
+                        </label>
+                    </div>
+                    <label class="field">
+                        <span>Категория</span>
+                        <input id="workout-category" name="category" type="text" list="category-list" maxlength="50" placeholder="Силовая" required>
+                    </label>
+                    <label class="field">
+                        <span>Заметки</span>
+                        <textarea id="workout-notes" name="notes" rows="3" maxlength="2000" placeholder="Самочувствие, цель тренировки..."></textarea>
+                    </label>
+                    <label class="checkbox-field">
+                        <input id="workout-completed" name="completed" type="checkbox">
+                        <span>Тренировка выполнена</span>
+                    </label>
+                    <p id="workout-form-error" class="form-error" role="alert" hidden></p>
+                    <button id="workout-submit" class="btn btn--primary btn--full" type="submit">Добавить тренировку</button>
+                </form>
+            </aside>
+
+            <section class="panel list-panel" aria-labelledby="workouts-heading">
+                <div class="list-toolbar">
+                    <div>
+                        <p class="eyebrow">Архив</p>
+                        <h2 id="workouts-heading">Мои тренировки</h2>
+                        <p id="list-count" class="muted">Загрузка списка...</p>
+                    </div>
+                </div>
+
+                <form id="filter-form" class="filters" novalidate>
+                    <label class="field filters__search">
+                        <span>Поиск по названию или заметкам</span>
+                        <input id="filter-q" name="q" type="search" maxlength="150" placeholder="Введите текст">
+                    </label>
+                    <label class="field">
+                        <span>Категория</span>
+                        <input id="filter-category" name="category" type="text" list="category-list" maxlength="50" placeholder="Все">
+                    </label>
+                    <label class="field">
+                        <span>Статус</span>
+                        <select id="filter-completed" name="completed">
+                            <option value="">Все</option>
+                            <option value="true">Выполненные</option>
+                            <option value="false">Запланированные</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>С даты</span>
+                        <input id="filter-date-from" name="date_from" type="date">
+                    </label>
+                    <label class="field">
+                        <span>По дату</span>
+                        <input id="filter-date-to" name="date_to" type="date">
+                    </label>
+                    <label class="field">
+                        <span>Сортировка</span>
+                        <select id="filter-sort" name="sort">
+                            <option value="date_desc">Сначала новые</option>
+                            <option value="date_asc">Сначала старые</option>
+                            <option value="title_asc">По названию</option>
+                            <option value="duration_desc">По длительности</option>
+                        </select>
+                    </label>
+                    <div class="filters__actions">
+                        <button class="btn btn--primary btn--small" type="submit">Применить</button>
+                        <button id="filter-reset" class="btn btn--ghost btn--small" type="reset">Сбросить</button>
+                    </div>
+                </form>
+
+                <div id="list-loading" class="state-box" role="status">
+                    <span class="spinner" aria-hidden="true"></span>
+                    Загрузка тренировок...
+                </div>
+                <div id="list-error" class="state-box state-box--error" role="alert" hidden></div>
+                <div id="workout-list" class="workout-list"></div>
+                <div id="list-empty" class="state-box" hidden>
+                    <strong>Пока ничего не найдено</strong>
+                    <span>Добавьте тренировку или измените параметры поиска.</span>
+                </div>
+                <button id="load-more" class="btn btn--ghost btn--full load-more" type="button" hidden>Показать ещё</button>
+            </section>
+        </div>
+    </main>
+
+    <datalist id="category-list">
+        <option value="Силовая"></option>
+        <option value="Кардио"></option>
+        <option value="Функциональная"></option>
+        <option value="Растяжка"></option>
+        <option value="Другое"></option>
+    </datalist>
+
+    <dialog id="edit-dialog" class="modal">
+        <div class="modal__header">
+            <div>
+                <p class="eyebrow">Изменение</p>
+                <h2>Редактировать тренировку</h2>
+            </div>
+            <button class="icon-button" type="button" data-close-dialog aria-label="Закрыть">×</button>
+        </div>
+        <form id="edit-form" class="form-stack" novalidate>
+            <label class="field">
+                <span>Название</span>
+                <input id="edit-title" name="title" type="text" maxlength="150" required>
+            </label>
+            <div class="field-row">
+                <label class="field">
+                    <span>Дата</span>
+                    <input id="edit-date" name="workout_date" type="date" required>
+                </label>
+                <label class="field">
+                    <span>Длительность, мин</span>
+                    <input id="edit-duration" name="duration_minutes" type="number" min="1" max="1440" required>
+                </label>
+            </div>
+            <label class="field">
+                <span>Категория</span>
+                <input id="edit-category" name="category" type="text" list="category-list" maxlength="50" required>
+            </label>
+            <label class="field">
+                <span>Заметки</span>
+                <textarea id="edit-notes" name="notes" rows="3" maxlength="2000"></textarea>
+            </label>
+            <label class="checkbox-field">
+                <input id="edit-completed" name="completed" type="checkbox">
+                <span>Тренировка выполнена</span>
+            </label>
+            <p id="edit-form-error" class="form-error" role="alert" hidden></p>
+            <div class="modal__actions">
+                <button class="btn btn--ghost" type="button" data-close-dialog>Отмена</button>
+                <button id="edit-submit" class="btn btn--primary" type="submit">Сохранить</button>
+            </div>
+        </form>
+    </dialog>
+
+    <dialog id="history-dialog" class="modal modal--wide">
+        <div class="modal__header">
+            <div>
+                <p class="eyebrow">История упражнения</p>
+                <h2 id="history-title">Упражнение</h2>
+            </div>
+            <button class="icon-button" type="button" data-close-dialog aria-label="Закрыть">×</button>
+        </div>
+        <div id="history-summary" class="history-summary"></div>
+        <p id="history-error" class="form-error" role="alert" hidden></p>
+        <div id="history-loading" class="state-box" role="status">
+            <span class="spinner" aria-hidden="true"></span>
+            Загрузка истории...
+        </div>
+        <div id="history-list" class="history-list"></div>
+        <div id="history-empty" class="state-box" hidden>По этому упражнению пока нет истории.</div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

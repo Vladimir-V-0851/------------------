@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Регистрация в дневнике тренировок">
+    <title>Регистрация — Дневник тренировок</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script type="module" src="/static/js/register.js"></script>
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="auth-brand" aria-labelledby="auth-title">
+            <a class="brand brand--light" href="/">
+                <span class="brand__mark">ДТ</span>
+                <span>Дневник тренировок</span>
+            </a>
+            <div class="auth-brand__content">
+                <p class="eyebrow eyebrow--light">Новый старт</p>
+                <h1 id="auth-title">Дневник, который помнит каждый подход</h1>
+                <p class="auth-brand__text">Создайте аккаунт и начните фиксировать тренировки, упражнения и рабочий вес.</p>
+                <ul class="auth-points">
+                    <li>Только ваши записи видны в дневнике</li>
+                    <li>Поиск, фильтры и сортировка</li>
+                    <li>Понятная статистика прогресса</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="auth-card panel" aria-labelledby="register-title">
+            <div class="auth-card__heading">
+                <p class="eyebrow">Создание аккаунта</p>
+                <h2 id="register-title">Регистрация</h2>
+                <p class="muted">Логин от 3 символов, пароль от 8 символов.</p>
+            </div>
+
+            <form id="register-form" class="form-stack" novalidate>
+                <label class="field">
+                    <span>Логин</span>
+                    <input id="username" name="username" type="text" autocomplete="username" minlength="3" maxlength="50" required autofocus>
+                </label>
+                <label class="field">
+                    <span>Пароль</span>
+                    <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+                </label>
+                <label class="field">
+                    <span>Повторите пароль</span>
+                    <input id="password-confirm" name="password_confirm" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+                </label>
+                <p id="form-error" class="form-error" role="alert" hidden></p>
+                <button id="register-submit" class="btn btn--primary btn--full" type="submit">Зарегистрироваться</button>
+            </form>
+
+            <p class="auth-switch">Уже есть аккаунт? <a href="/login">Войти</a></p>
+        </section>
+    </main>
+</body>
+</html>
